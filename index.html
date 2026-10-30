@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Así se vería el dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4f46e5',
+                        secondary: '#ec4899',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex overflow-hidden selection:bg-primary selection:text-white">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-20 hidden lg:hidden transition-opacity" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col h-full shadow-2xl lg:shadow-none">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-100">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-xl mr-3 shadow-lg shadow-primary/30">
+                <i class="ph ph-lightning"></i>
+            </div>
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">DashUI</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <a href="#" class="flex items-center px-3 py-2.5 bg-primary/10 text-primary rounded-xl font-medium transition-colors">
+                <i class="ph ph-squares-four text-xl mr-3"></i>
+                Visión General
+            </a>
+            <a href="#" class="flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                <i class="ph ph-chart-line-up text-xl mr-3"></i>
+                Analíticas
+            </a>
+            <a href="#" class="flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                <i class="ph ph-users text-xl mr-3"></i>
+                Audiencia
+            </a>
+            <a href="#" class="flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                <i class="ph ph-wallet text-xl mr-3"></i>
+                Finanzas
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-slate-100">
+                <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Configuración</p>
+                <a href="#" class="flex items-center px-3 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl font-medium transition-colors">
+                    <i class="ph ph-gear text-xl mr-3"></i>
+                    Ajustes
+                </a>
+            </div>
+        </nav>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center gap-3">
+                <img src="https://placehold.co/40x40/4f46e5/ffffff?text=U" alt="User" class="w-10 h-10 rounded-full border-2 border-white shadow-md">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-slate-800 truncate">Usuario Admin</p>
+                    <p class="text-xs text-slate-500 truncate">admin@proyecto.com</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative">
+        
+        <!-- Top Header -->
+        <header class="h-16 glass-effect border-b border-slate-200/60 sticky top-0 z-10 px-4 sm:px-8 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+                <div class="hidden sm:flex items-center relative text-slate-400 focus-within:text-primary">
+                    <i class="ph ph-magnifying-glass absolute left-3 text-lg"></i>
+                    <input type="text" placeholder="Buscar..." class="w-64 pl-10 pr-4 py-2 bg-slate-100/50 border-none rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button class="p-2 relative rounded-full text-slate-500 hover:bg-slate-100 transition-colors">
+                    <i class="ph ph-bell text-xl"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <button class="hidden sm:block px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
+                    Exportar Reporte
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Area -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50/50 p-4 sm:p-8">
+            
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">Así se vería el dashboard</h1>
+                <p class="text-slate-500 mt-1">Bienvenido de nuevo. Aquí está el resumen de hoy.</p>
+            </div>
+
+            <!-- Stats Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="ph-fill ph-trend-up text-6xl text-primary"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                        <i class="ph ph-currency-dollar text-2xl text-primary"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Ingresos Totales</p>
+                    <h3 class="text-2xl font-bold text-slate-800">$24,590</h3>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center font-medium bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <i class="ph ph-arrow-up-right mr-1"></i> 12.5%
+                        </span>
+                        <span class="text-slate-400 ml-2">vs mes anterior</span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="ph-fill ph-users text-6xl text-secondary"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <i class="ph ph-users text-2xl text-pink-500"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Nuevos Usuarios</p>
+                    <h3 class="text-2xl font-bold text-slate-800">+3,422</h3>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center font-medium bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <i class="ph ph-arrow-up-right mr-1"></i> 8.2%
+                        </span>
+                        <span class="text-slate-400 ml-2">vs mes anterior</span>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="ph-fill ph-shopping-cart text-6xl text-amber-500"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <i class="ph ph-shopping-bag text-2xl text-amber-500"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Ventas Hoy</p>
+                    <h3 class="text-2xl font-bold text-slate-800">1,245</h3>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-rose-500 flex items-center font-medium bg-rose-50 px-2 py-0.5 rounded-full">
+                            <i class="ph ph-arrow-down-right mr-1"></i> 1.4%
+                        </span>
+                        <span class="text-slate-400 ml-2">vs ayer</span>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                     <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="ph-fill ph-target text-6xl text-emerald-500"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4">
+                        <i class="ph ph-crosshair text-2xl text-emerald-500"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Tasa de Conversión</p>
+                    <h3 class="text-2xl font-bold text-slate-800">4.83%</h3>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center font-medium bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <i class="ph ph-arrow-up-right mr-1"></i> 4.1%
+                        </span>
+                        <span class="text-slate-400 ml-2">vs mes anterior</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                
+                <!-- Main Area Chart -->
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800">Crecimiento de Ingresos</h2>
+                            <p class="text-sm text-slate-500">Resumen de los últimos 7 meses</p>
+                        </div>
+                        <select class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-primary focus:border-primary block p-2">
+                            <option>Últimos 7 meses</option>
+                            <option>Este año</option>
+                        </select>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Secondary Bar Chart -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-slate-800">Tráfico por Canal</h2>
+                        <p class="text-sm text-slate-500">Fuentes de adquisición</p>
+                    </div>
+                    <div class="relative h-72 w-full">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-800">Transacciones Recientes</h2>
+                    <button class="text-sm text-primary font-medium hover:text-primary/80">Ver todo</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 text-slate-500 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-medium">Cliente</th>
+                                <th class="p-4 font-medium">Fecha</th>
+                                <th class="p-4 font-medium">Monto</th>
+                                <th class="p-4 font-medium">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-100">
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 flex items-center gap-3">
+                                    <img src="https://placehold.co/32x32/10b981/ffffff?text=M" class="w-8 h-8 rounded-full" alt="avatar">
+                                    <span class="font-medium text-slate-800">Maria García</span>
+                                </td>
+                                <td class="p-4 text-slate-500">Hoy, 14:30</td>
+                                <td class="p-4 font-medium text-slate-800">$1,250.00</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Completado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 flex items-center gap-3">
+                                    <img src="https://placehold.co/32x32/3b82f6/ffffff?text=C" class="w-8 h-8 rounded-full" alt="avatar">
+                                    <span class="font-medium text-slate-800">Carlos López</span>
+                                </td>
+                                <td class="p-4 text-slate-500">Ayer, 09:15</td>
+                                <td class="p-4 font-medium text-slate-800">$450.50</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Pendiente</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 flex items-center gap-3">
+                                    <img src="https://placehold.co/32x32/8b5cf6/ffffff?text=A" class="w-8 h-8 rounded-full" alt="avatar">
+                                    <span class="font-medium text-slate-800">Ana Martínez</span>
+                                </td>
+                                <td class="p-4 text-slate-500">22 Oct, 18:40</td>
+                                <td class="p-4 font-medium text-slate-800">$3,890.00</td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Completado</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Sidebar Toggle Logic for Mobile
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                // Small delay to allow display block to apply before opacity transition
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- Chart.js Configurations ---
+
+        // Chart defaults
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.scale.grid.color = '#f1f5f9';
+
+        // 1. Area Chart (Crecimiento de Ingresos)
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+        
+        // Gradient for Area Chart
+        const gradientRevenue = ctxRevenue.createLinearGradient(0, 0, 0, 400);
+        gradientRevenue.addColorStop(0, 'rgba(79, 70, 229, 0.4)'); // primary color with opacity
+        gradientRevenue.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+        new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Ingresos ($)',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                    borderColor: '#4f46e5',
+                    backgroundColor: gradientRevenue,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#4f46e5',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4 // Smooth curves
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 14, weight: 'bold' },
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        border: { display: false },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value / 1000 + 'k';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Bar Chart (Tráfico por Canal)
+        const ctxTraffic = document.getElementById('trafficChart').getContext('2d');
+        new Chart(ctxTraffic, {
+            type: 'bar',
+            data: {
+                labels: ['Orgánico', 'Directo', 'Social', 'Referido'],
+                datasets: [{
+                    label: 'Visitas',
+                    data: [4500, 2100, 3800, 1200],
+                    backgroundColor: [
+                        '#4f46e5', // Primary
+                        '#0ea5e9', // Sky
+                        '#ec4899', // Pink
+                        '#f59e0b'  // Amber
+                    ],
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    },
+                    y: {
+                        border: { display: false },
+                        display: false // Hide y axis labels for a cleaner look on the small chart
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
